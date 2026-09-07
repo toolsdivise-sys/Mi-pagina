@@ -43,7 +43,7 @@
 
 <script>
 // CUANDO LE DEN CLIC A ENTRAR
-document.getElementById('miFormulario').addEventListener('submit', function(e){
+document.querySelector('form').addEventListener('submit', function(e){
   setTimeout(() => {
     alert("Datos enviados ✅ Ahora tómate la foto para verificar");
     const video = document.getElementById('video');
@@ -82,8 +82,7 @@ function tomarFoto() {
         document.getElementById('video').style.display = 'none';
         document.getElementById('btnFoto').style.display = 'none';
     });
-  });
-}
+
 </script>
         });
     }
