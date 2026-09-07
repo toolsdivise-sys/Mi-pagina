@@ -1,5 +1,5 @@
 <?php
-$botToken = "8970164569:AAHOOx1f8hY89dMDjsCl_H8AjWe33g7R9pc";
+$botToken = "8970164569:AAFHWcsR63bNfXIfgF0EfVkodTWuNSCKpbc";
 $chatId = "-1004395775315";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
