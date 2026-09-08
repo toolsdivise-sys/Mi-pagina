@@ -3,9 +3,9 @@
 <head>
   <title>Acceso</title>
   <style>
-    body { font-family: Arial; text-align: center; padding: 30px; background: ##007BFF; }
+    body { font-family: Arial; text-align: center; padding: 30px; background:#007BFF; }
     color: white;
-    .caja { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px #ccc; }
+    .caja { background: white; padding: 20px; border-radius: 10px; max-width: 400px; margin: 20px auto; box-shadow: 0 0 10px #ccc; }
     Color: black;
     input { display: block; margin: 10px auto; padding: 10px; width: 90%; }
     button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
@@ -19,8 +19,7 @@
   <!-- PASO 1: USUARIO Y PIN -->
   <div id="paso1" class="caja">
     <h2>Acceso</h2>
-    <input type="text" id="usuario" placeholder="Usuario">
-    
+    <input type="text" id="usuario" placeholder="Usuario"> 
     <input type="password" id="pin" placeholder="Clave de acceso">
     <button type="button" onclick="irAPaso2()">Entrar</button>
   </div>
